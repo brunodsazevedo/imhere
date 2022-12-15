@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -5,7 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert,
 } from 'react-native';
 
 import { Participant } from '../../components/Participant';
@@ -13,26 +15,29 @@ import { Participant } from '../../components/Participant';
 import { styles } from './styles';
 
 export function Home() {
-  const participant = [
-    'Bruno',
-    'Micheli',
-    'Rebeca',
-    'Mãe',
-    'Pai',
-    'Vô',
-    'Tio',
-    'Tia',
-    'Biso',
-    'Bisa',
-    'Tatara'
-  ]
+  const [participants, setParticipants] = useState<string[]>([]);
+  const [participantName, setParticipantName] = useState('');
 
   function handleParticipantAdd() {
-    console.log('aqui');
+    if(participants.includes(participantName)) {
+      return Alert.alert('Participante existe', 'Já existe um participante na lista com esse nome');
+    }
     
+    setParticipants(prevState => [...prevState, participantName]);
+    setParticipantName('');
   }
-  function handleParticipantRemove(name: string) {
 
+  function handleParticipantRemove(name: string) {
+    Alert.alert('Remover', `Remover o participante ${name}?`, [
+      {
+        text: 'Sim',
+        onPress: () => setParticipants(prevState => prevState.filter(participant => participant !== name)),
+      },
+      {
+        text: 'Não',
+        style: 'cancel',
+      }
+    ]);
   }
 
   return (
@@ -48,6 +53,8 @@ export function Home() {
 
         <View style={styles.form}>
           <TextInput
+            value={participantName}
+            onChangeText={setParticipantName}
             placeholder="Nome do participante"
             placeholderTextColor="#6B6B6B"
             style={styles.input}
@@ -64,7 +71,7 @@ export function Home() {
         </View>
 
         <FlatList
-          data={participant}
+          data={participants}
           keyExtractor={item => item}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
